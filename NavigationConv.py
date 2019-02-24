@@ -4,6 +4,12 @@ import numpy as np
 from skimage import transform
 from skimage.color import rgb2gray
 from collections import deque
+import torch
+
+from model import QNetwork
+from agent import Agent
+
+device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 env = UnityEnvironment(file_name="Banana.app")
 
@@ -22,19 +28,21 @@ action_size = brain.vector_action_space_size
 # print('Action Size: ', action_size)
 
 # examine the state space
-state = env_info.visual_observations[0]
+state = np.squeeze(env_info.visual_observations[0])
 state_size = state.shape
-
 print('States have shape: ', state_size)
-print('States look like:')
+# print('States look like:')
 # plt.figure()
-# plt.imshow(np.squeeze(state))
+# plt.imshow(state)
 # plt.show()
+# state = np.reshape(state, [3, 84, 84])
+# state_size = state.shape
+# print('States have shape: ', state_size)
 
 stack_size = 4
 
 # Initialize deque with zero-images. One array for each image
-stacked_frames = deque([np.zeros((84, 84, 3), dtype=np.int) for i in range(stack_size)], maxlen=4)
+stacked_frames = deque([np.zeros((3, 84, 84), dtype=np.int) for _ in range(stack_size)], maxlen=4)
 
 
 def stack_frames(stacked_frames, state, is_new_episode):
@@ -43,7 +51,7 @@ def stack_frames(stacked_frames, state, is_new_episode):
 
     if is_new_episode:
         # Clear our stacked frames
-        stacked_frames = deque([np.zeros((84, 84, 3), dtype=np.int) for _ in range(stack_size)], maxlen=4)
+        stacked_frames = deque([np.zeros((3, 84, 84), dtype=np.int) for _ in range(stack_size)], maxlen=4)
 
         # Because we're in a new episode,copy the same frame 4 times
         stacked_frames.append(frame)
@@ -52,34 +60,44 @@ def stack_frames(stacked_frames, state, is_new_episode):
         stacked_frames.append(frame)
 
         # Stack the frames
-        stacked_state = np.stack(stacked_frames, axis=3)
+        stacked_state = np.stack(stacked_frames, axis=0)
 
     else:
         # Append frame to deque, automatically removes the oldest frame
         stacked_frames.append(frame)
 
         # Build the stacked state (first dimension specifies different frames)
-        stacked_state = np.stack(stacked_frames, axis=3)
+        stacked_state = np.stack(stacked_frames, axis=0)
 
     return stacked_state, stacked_frames
 
+# agent = Agent()
+qnetwork = QNetwork(action_size).to(device)
 
 for _ in range(5):
     env_info = env.reset(train_mode=True)[brain_name]
-    state = np.squeeze(env_info.visual_observations[0])
+    state = np.reshape(np.squeeze(env_info.visual_observations[0]), [3, 84, 84])
     stacked_state, stacked_frames = stack_frames(stacked_frames, state, is_new_episode=True)
     for t in range(1000):
-        action = np.random.randint(4)
-        env_info = env.step(action)[brain_name]
-        next_state = np.squeeze(env_info.visual_observations[0])
-        stacked_state, stacked_frames = stack_frames(stacked_frames, next_state, is_new_episode=False)
-        plt.figure()
+        # action = np.random.randint(4)
+        with torch.no_grad():
+            action_values = qnetwork(torch.from_numpy(stacked_state).float().to(device))
+        action = np.argmax(action_values.cpu().data.numpy())
+        print('action_chosen: ', action)
+        print(action.dtype)
+        env_info = env.step(np.int(action))[brain_name]
+        next_state = np.reshape(np.squeeze(torch.from_numpy(env_info.visual_observations[0])), [3, 84, 84])
+        stacked_next_state, stacked_frames = stack_frames(stacked_frames, next_state, is_new_episode=False)
+        reward = env_info.rewards[0]
+        done = env_info.local_done[0]
+        # agent.step(state, action, reward, next_state, done)
         # for i in range(4):
         #     plt.imshow(stacked_state[:,:,:,i])
         #     plt.show()
-        reward = env_info.rewards[0]
-        done = env_info.local_done[0]
         state = next_state
+        stacked_state = stacked_next_state
+        if done:
+            break
 
 
 # agent = Agent(state_size=state_size, action_size=action_size, seed=0)
