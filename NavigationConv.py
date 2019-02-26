@@ -35,9 +35,6 @@ print('States have shape: ', state_size)
 # plt.figure()
 # plt.imshow(state)
 # plt.show()
-# state = np.reshape(state, [3, 84, 84])
-# state_size = state.shape
-# print('States have shape: ', state_size)
 
 stack_size = 4
 
@@ -90,9 +87,6 @@ def dqn(stacked_frames=stacked_frames, n_episodes=20000, max_t=5000, epsilon_sta
         state = np.reshape(np.squeeze(env_info.visual_observations[0]), [3, 84, 84])                # numpy form
         stacked_state, stacked_frames = stack_frames(stacked_frames, state, is_new_episode=True)    # numpy form
         for t in range(max_t):
-            # with torch.no_grad():
-            #     action_values = qnetwork(torch.from_numpy(stacked_state).float().to(device))        # tensor form
-            # action = np.argmax(action_values.cpu().data.numpy())
             action = agent.act(stacked_state, epsilon)
             env_info = env.step(np.int(action))[brain_name]
             next_state = np.reshape(np.squeeze(torch.from_numpy(env_info.visual_observations[0])), [3, 84, 84]) # numpy form
@@ -100,24 +94,16 @@ def dqn(stacked_frames=stacked_frames, n_episodes=20000, max_t=5000, epsilon_sta
             reward = env_info.rewards[0]
             done = env_info.local_done[0]
             agent.step(stacked_state, action, reward, stacked_next_state, done)
-            # print(agent.memory.__len__())
-            # for i in range(4):
-            #     plt.imshow(stacked_state[:,:,:,i])
-            #     plt.show()
-            # state = next_state
             stacked_state = stacked_next_state
             score += reward
             if done:
                 break
         scores_window.append(score)
         scores.append(score)
-        # Food for thought:
-        # Instead of decaying epsilon after every episode, why not decay it ONLY if it improved the score and
-        # maintain the same epsilon if the score didn't improve?
         current_mean = np.mean(scores_window)
-        if current_mean > previous_mean:
-            epsilon = max(epsilon_end, epsilon*epsilon_decay)
-            previous_mean = current_mean
+        # if current_mean > previous_mean:
+        epsilon = max(epsilon_end, epsilon*epsilon_decay)
+            # previous_mean = current_mean
 
         print('\rEpisode {}\tAverage Score: {:.2f}'.format(i_episode, current_mean, end=""))
         if i_episode % 10 == 0:
@@ -130,51 +116,6 @@ def dqn(stacked_frames=stacked_frames, n_episodes=20000, max_t=5000, epsilon_sta
             break
 
     return scores
-
-
-# def dqn(n_episodes = 2000, max_t=1000, epsilon_start=1.0, epsilon_end=0.01, epsilon_decay=0.98):
-#     """Deep Q-Learning
-#
-#     Params:
-#         n_episodes (int): maximum number of training episodes
-#         max_t (int): maximum number of time-steps per episode
-#         epsilon_start (float): starting value of epsilon, for epsilon-greedy action selection
-#         epsilon_end (float): minimum value of epsilon
-#         epsilon_decay (float): multiplicative factor (per episode) for decreasing epsilon"""
-#
-#     scores = []
-#     scores_window = deque(maxlen=100)
-#     epsilon = epsilon_start
-#
-#     for i_episode in range(1, n_episodes+1):
-#         env_info = env.reset(train_mode=True)[brain_name]           # Reset environment to start from the beginning
-#         state = env_info.vector_observations[0]                     # Get the current state
-#         score = 0                                                   # Set the score to 0 before the episode begins
-#         for t in range(max_t):
-#             action = int(agent.act(state, epsilon))                 # The agent selects an action
-#             env_info = env.step(action)[brain_name]                 # Take chosen action in the environment
-#             next_state = env_info.vector_observations[0]            # Get the next state from the environment
-#             reward = env_info.rewards[0]                            # Get the reward for taking selected action
-#             done = env_info.local_done[0]                           # Check to see if the episode has terminated or completed
-#             agent.step(state, action, reward, next_state, done)     # The agent learns from a sampled set of experiences
-#             state = next_state                                      # Set the state as the new_state or current state of the env
-#             score +=reward                                          # Update the scores based on rewards
-#             if done:
-#                 break                                               # Break the loop after the episode has completed
-#         scores_window.append(score)
-#         scores.append(score)
-#         epsilon = max(epsilon_end, epsilon*epsilon_decay)
-#         print('\rEpisode {}\tAverage Score: {:.2f}'.format(i_episode, np.mean(scores_window), end=""))
-#         if i_episode % 100 == 0:
-#             print('\rEpisode {}\tAverage Score: {:.2f}'.format(i_episode, np.mean(scores_window)))
-#         if np.mean(scores_window)>=13.0:
-#             # Once the episode has been solved, store the weights in a file
-#             # This allows us to use the trained agent to test with later on without having to retrain it every time
-#             print('\nEnvironment solved in {:d} episodes!\tAverage Score: {:.2f}'.format(i_episode-100, np.mean(scores_window)))
-#             torch.save(agent.qnetwork_local.state_dict(), 'checkpoint.pth')
-#             break
-#
-#     return scores
 
 scores = dqn()
 
