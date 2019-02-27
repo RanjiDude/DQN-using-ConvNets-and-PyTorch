@@ -1,8 +1,6 @@
 from unityagents import UnityEnvironment
 import matplotlib.pyplot as plt
 import numpy as np
-from skimage import transform
-from skimage.color import rgb2gray
 from collections import deque
 import torch
 
@@ -35,6 +33,9 @@ print('States have shape: ', state_size)
 # plt.figure()
 # plt.imshow(state)
 # plt.show()
+# state = np.reshape(state, [3, 84, 84])
+# state_size = state.shape
+# print('States have shape: ', state_size)
 
 stack_size = 4
 
@@ -69,21 +70,18 @@ def stack_frames(stacked_frames, state, is_new_episode):
     return stacked_state, stacked_frames
 
 
-agent = Agent(action_size)
-# qnetwork = QNetwork(action_size).to(device)
+agent = Agent(action_size=action_size)
 
-checkpoint = 'checkpoint.pth'
-agent.qnetwork_local.load_state_dict(torch.load(checkpoint))
+
 def dqn(stacked_frames=stacked_frames, n_episodes=20000, max_t=5000, epsilon_start=1.0, epsilon_end=0.01, epsilon_decay=0.98):
 
     score = 0.0
     scores = []
     scores_window = deque(maxlen=100)
     epsilon = epsilon_start
-    previous_mean = 0.0
 
     for i_episode in range(1, n_episodes+1):
-        env_info = env.reset(train_mode=True)[brain_name]
+        env_info = env.reset(train_mode=False)[brain_name]
         state = np.reshape(np.squeeze(env_info.visual_observations[0]), [3, 84, 84])                # numpy form
         stacked_state, stacked_frames = stack_frames(stacked_frames, state, is_new_episode=True)    # numpy form
         for t in range(max_t):
@@ -101,13 +99,12 @@ def dqn(stacked_frames=stacked_frames, n_episodes=20000, max_t=5000, epsilon_sta
         scores_window.append(score)
         scores.append(score)
         current_mean = np.mean(scores_window)
-        # if current_mean > previous_mean:
         epsilon = max(epsilon_end, epsilon*epsilon_decay)
-            # previous_mean = current_mean
 
         print('\rEpisode {}\tAverage Score: {:.2f}'.format(i_episode, current_mean, end=""))
         if i_episode % 10 == 0:
-            torch.save(agent.qnetwork_local.state_dict(), 'checkpoint.pth')
+            pass
+            # torch.save(agent.qnetwork_local.state_dict(), 'checkpoint.pth')
         if np.mean(scores_window) >= 13.0:
             # Once the episode has been solved, store the weights in a file
             # This allows us to use the trained agent to test with later on without having to retrain it every time
