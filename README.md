@@ -1,2 +1,4 @@
 # DeepRL-using-ConvNets
-Implementing DeepRL algos using PyTorch and ConvNets
+Implementing the DQN algorithm using PyTorch and ConvNets
+
+
