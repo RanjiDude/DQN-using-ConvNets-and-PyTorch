@@ -48,11 +48,11 @@ Episode 19	Average Score: 0.53
 
 Episode 20	Average Score: 0.65
 
-.
+*
 
-.
+*
 
-.
+*
 
 Episode 128	Average Score: 12.52
 
