@@ -79,7 +79,6 @@ for i_episode in range(10):
         stacked_next_state, stacked_frames = stack_frames(stacked_frames, next_state, is_new_episode=False) # numpy form
         reward = env_info.rewards[0]
         done = env_info.local_done[0]
-        agent.step(stacked_state, action, reward, stacked_next_state, done)
         stacked_state = stacked_next_state
         score += reward
         if done:
