@@ -70,13 +70,13 @@ score = 0.0
 
 for i_episode in range(10):
     env_info = env.reset(train_mode=False)[brain_name]
-    state = np.reshape(np.squeeze(env_info.visual_observations[0]), [3, 84, 84])                # numpy form
-    stacked_state, stacked_frames = stack_frames(stacked_frames, state, is_new_episode=True)    # numpy form
+    state = np.reshape(np.squeeze(env_info.visual_observations[0]), [3, 84, 84])             
+    stacked_state, stacked_frames = stack_frames(stacked_frames, state, is_new_episode=True) 
     while True:
         action = agent.act(stacked_state, epsilon=0)
         env_info = env.step(np.int(action))[brain_name]
-        next_state = np.reshape(np.squeeze(torch.from_numpy(env_info.visual_observations[0])), [3, 84, 84]) # numpy form
-        stacked_next_state, stacked_frames = stack_frames(stacked_frames, next_state, is_new_episode=False) # numpy form
+        next_state = np.reshape(np.squeeze(torch.from_numpy(env_info.visual_observations[0])), [3, 84, 84])
+        stacked_next_state, stacked_frames = stack_frames(stacked_frames, next_state, is_new_episode=False)
         reward = env_info.rewards[0]
         done = env_info.local_done[0]
         stacked_state = stacked_next_state
