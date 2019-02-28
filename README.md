@@ -3,7 +3,8 @@ Implementing the DQN algorithm using PyTorch and ConvNets
 
 ## Convergence
 The environment is considered "solved" if the agent can get an average scores of +13.0 over 100 episodes
-<img src="images/ConvDQN_1.png" width="50%" align="top-left" alt="" title="Tennis" />
+<img src="images/ConvDQN.png" width="50%" align="top-left" alt="" title="Banana" />
+<img src="images/ConvDQN_1.png" width="50%" align="top-left" alt="" title="Banana1" />
 
 For information on the architecture of the model refer to this paper:
 https://web.stanford.edu/class/psych209/Readings/MnihEtAlHassibis15NatureControlDeepRL.pdf
