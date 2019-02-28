@@ -14,7 +14,7 @@ The environment is considered "solved" if the agent can get an average scores of
 <img src="images/ConvDQN.png" width="50%" align="top-left" alt="" title="Banana" />
 <img src="images/ConvDQN_1.png" width="50%" align="top-left" alt="" title="Banana1" />
 
-For information on the architecture of the model refer to this paper:
+For information on the architecture of the model used, refer to this paper:
 https://web.stanford.edu/class/psych209/Readings/MnihEtAlHassibis15NatureControlDeepRL.pdf
 
 Episode 1	Average Score: 0.00
