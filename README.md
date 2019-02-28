@@ -1,6 +1,14 @@
 # DQN using Convolutional Neural Networks
 Implementing the DQN algorithm using PyTorch and ConvNets
 
+## Environment
+You need only select the environment that matches your operating system:
+
+    - Linux: [click here](https://s3-us-west-1.amazonaws.com/udacity-drlnd/P1/Banana/VisualBanana_Linux.zip)
+    - Mac OSX: [click here](https://s3-us-west-1.amazonaws.com/udacity-drlnd/P1/Banana/VisualBanana.app.zip)
+    - Windows (32-bit): [click here](https://s3-us-west-1.amazonaws.com/udacity-drlnd/P1/Banana/VisualBanana_Windows_x86.zip)
+    - Windows (64-bit): [click here](https://s3-us-west-1.amazonaws.com/udacity-drlnd/P1/Banana/VisualBanana_Windows_x86_64.zip)
+
 ## Convergence
 The environment is considered "solved" if the agent can get an average scores of +13.0 over 100 episodes
 <img src="images/ConvDQN.png" width="50%" align="top-left" alt="" title="Banana" />
